@@ -11,9 +11,42 @@ Throughout, replace `<account-id>` with the 12-digit ID shown in the console's t
 
 ## 0. Check Bedrock model access
 
-1. Open **Amazon Bedrock → Model catalog** and search for **Nova Lite**.
-2. Open it in the **Playground** (Chat / text). Paste a few paragraphs of the sample document after the system prompt from [`lambda_function.py`](../src/summarize_function/lambda_function.py) and run it. If you get a response, the account can call the model.
-3. If the model is not available, try **Amazon Nova Micro** (`amazon.nova-micro-v1:0`). Use that ID in the Lambda `MODEL_ID` variable, the IAM policy, and the template's `ModelId` parameter.
+> [!WARNING]
+> In the Udacity (Vocareum) lab account, the lab policy `Pvoclabs3` explicitly denies `bedrock:ListFoundationModels` and `bedrock:ListInferenceProfiles`. Because of that, the **Model catalog** and **Playground** pages show "not authorized" errors. Those denies cover only *listing* models, not *calling* them, so test by calling the model directly instead.
+
+1. Open **CloudShell** (the `>_` icon in the console's top bar, us-east-1) and run:
+
+   ```bash
+   aws bedrock-runtime converse --region us-east-1 \
+     --model-id amazon.nova-lite-v1:0 \
+     --messages '[{"role":"user","content":[{"text":"Reply with the word OK."}]}]' \
+     --query 'output.message.content[0].text' --output text
+   ```
+
+   If it prints `OK`, the account can call Nova Lite. Keep the defaults and go on to step 1.
+2. If it prints `AccessDeniedException`, check which models the lab allows:
+
+   ```bash
+   for m in amazon.nova-micro-v1:0 amazon.nova-pro-v1:0 amazon.titan-text-express-v1 \
+            anthropic.claude-3-haiku-20240307-v1:0 meta.llama3-8b-instruct-v1:0; do
+     printf '%-45s ' "$m"
+     aws bedrock-runtime converse --region us-east-1 --model-id "$m" \
+       --messages '[{"role":"user","content":[{"text":"Reply with the word OK."}]}]' \
+       --query 'output.message.content[0].text' --output text 2>&1 | head -1
+   done
+   ```
+
+   You can also read the lab policy itself, if the account allows it:
+
+   ```bash
+   P=arn:aws:iam::<account-id>:policy/Pvoclabs3
+   aws iam get-policy-version --policy-arn $P \
+     --version-id $(aws iam get-policy --policy-arn $P --query Policy.DefaultVersionId --output text)
+   ```
+
+3. Use the first model that answers in all three places: the Lambda `MODEL_ID` variable, the IAM policy's `InvokeSummaryModel` resource, and the template's `ModelId` parameter.
+
+These calls run as the lab's `voclabs` role. The Lambda function runs as its own execution role, which `Pvoclabs3` does not apply to. A model that works from CloudShell should therefore work from the function, too. The **Lambda test event in step 6** is the real check.
 
 The prompt is modeled on the Bedrock console's **Examples** (summarization): it gives the model a role, an audience, a length limit, and a fixed output structure.
 
