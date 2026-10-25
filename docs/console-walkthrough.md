@@ -32,9 +32,11 @@ Throughout, replace `<account-id>` with the 12-digit ID shown in the console's t
      printf '%-45s ' "$m"
      aws bedrock-runtime converse --region us-east-1 --model-id "$m" \
        --messages '[{"role":"user","content":[{"text":"Reply with the word OK."}]}]' \
-       --query 'output.message.content[0].text' --output text 2>&1 | head -1
+       --query 'output.message.content[0].text' --output text 2>&1 | grep -m1 .
    done
    ```
+
+   (`grep -m1 .` prints the first non-blank line. The CLI puts a blank line before error messages.)
 
    You can also read the lab policy itself, if the account allows it:
 
