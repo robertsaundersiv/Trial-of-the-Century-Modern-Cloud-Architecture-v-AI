@@ -1,0 +1,25 @@
+# Environment files (keep the example)
+.env
+.env.*
+!.env.example
+
+# Python
+__pycache__/
+*.py[cod]
+.pytest_cache/
+
+# Virtual environments
+.venv/
+venv/
+
+# AWS credentials and build output
+.aws/
+*.pem
+infra/.build/
+packaged-template.yaml
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/

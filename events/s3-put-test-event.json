@@ -1,0 +1,23 @@
+{
+  "Records": [
+    {
+      "eventVersion": "2.1",
+      "eventSource": "aws:s3",
+      "awsRegion": "us-east-1",
+      "eventTime": "2026-10-25T00:00:00.000Z",
+      "eventName": "ObjectCreated:Put",
+      "s3": {
+        "s3SchemaVersion": "1.0",
+        "configurationId": "summarize-on-upload",
+        "bucket": {
+          "name": "objection-inspection-input-123456789012-us-east-1",
+          "arn": "arn:aws:s3:::objection-inspection-input-123456789012-us-east-1"
+        },
+        "object": {
+          "key": "sample+legal+document.txt",
+          "size": 1024
+        }
+      }
+    }
+  ]
+}

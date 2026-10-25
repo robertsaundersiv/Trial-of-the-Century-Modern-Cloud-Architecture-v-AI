@@ -1,0 +1,100 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 560" width="1000" height="560" font-family="Arial, Helvetica, sans-serif">
+  <title>ObjectionInspection legal document summarizer architecture</title>
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#232f3e"/>
+    </marker>
+    <marker id="arrow-grey" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#6b7280"/>
+    </marker>
+  </defs>
+  <rect width="1000" height="560" fill="#ffffff"/>
+
+  <!-- AWS Cloud / Region boundary -->
+  <rect x="210" y="30" width="775" height="515" rx="6" fill="#f8fafc" stroke="#232f3e" stroke-width="1.5"/>
+  <text x="224" y="52" font-size="14" font-weight="bold" fill="#232f3e">AWS Cloud · us-east-1 (N. Virginia)</text>
+
+  <!-- User -->
+  <rect x="15" y="205" width="150" height="90" rx="8" fill="#ffffff" stroke="#232f3e" stroke-width="1.5"/>
+  <text x="90" y="240" font-size="15" font-weight="bold" text-anchor="middle" fill="#232f3e">Attorney /</text>
+  <text x="90" y="258" font-size="15" font-weight="bold" text-anchor="middle" fill="#232f3e">legal staff</text>
+  <text x="90" y="278" font-size="12" text-anchor="middle" fill="#4b5563">Console or CLI</text>
+  <text x="90" y="320" font-size="12" font-weight="bold" text-anchor="middle" fill="#232f3e">1. Upload .txt</text>
+  <text x="90" y="336" font-size="11" text-anchor="middle" fill="#4b5563">over HTTPS</text>
+
+  <!-- Input bucket -->
+  <rect x="240" y="190" width="185" height="120" rx="8" fill="#e8f5e9" stroke="#3f8624" stroke-width="2"/>
+  <text x="332" y="215" font-size="15" font-weight="bold" text-anchor="middle" fill="#1b5e20">Amazon S3</text>
+  <text x="332" y="234" font-size="14" text-anchor="middle" fill="#1b5e20">Input bucket</text>
+  <text x="332" y="256" font-size="12" text-anchor="middle" fill="#374151">legal documents (*.txt)</text>
+  <text x="332" y="274" font-size="11" text-anchor="middle" fill="#374151">SSE-S3 (AES-256)</text>
+  <text x="332" y="289" font-size="11" text-anchor="middle" fill="#374151">Block Public Access · TLS only</text>
+
+  <!-- Lambda -->
+  <rect x="545" y="190" width="185" height="120" rx="8" fill="#fff3e0" stroke="#d45b07" stroke-width="2"/>
+  <text x="637" y="215" font-size="15" font-weight="bold" text-anchor="middle" fill="#a43d00">AWS Lambda</text>
+  <text x="637" y="234" font-size="14" text-anchor="middle" fill="#a43d00">summarize function</text>
+  <text x="637" y="256" font-size="12" text-anchor="middle" fill="#374151">Python 3.13 · arm64</text>
+  <text x="637" y="274" font-size="11" text-anchor="middle" fill="#374151">reads doc, caps input size,</text>
+  <text x="637" y="289" font-size="11" text-anchor="middle" fill="#374151">calls Bedrock, saves summary</text>
+
+  <!-- Bedrock -->
+  <rect x="795" y="70" width="175" height="105" rx="8" fill="#ede7f6" stroke="#5a30b5" stroke-width="2"/>
+  <text x="882" y="98" font-size="15" font-weight="bold" text-anchor="middle" fill="#3b1f7a">Amazon Bedrock</text>
+  <text x="882" y="118" font-size="13" text-anchor="middle" fill="#3b1f7a">Converse API</text>
+  <text x="882" y="140" font-size="12" text-anchor="middle" fill="#374151">foundation model:</text>
+  <text x="882" y="157" font-size="12" text-anchor="middle" fill="#374151">Amazon Nova Lite</text>
+
+  <!-- Output bucket -->
+  <rect x="795" y="320" width="175" height="120" rx="8" fill="#e8f5e9" stroke="#3f8624" stroke-width="2"/>
+  <text x="882" y="345" font-size="15" font-weight="bold" text-anchor="middle" fill="#1b5e20">Amazon S3</text>
+  <text x="882" y="364" font-size="14" text-anchor="middle" fill="#1b5e20">Output bucket</text>
+  <text x="882" y="385" font-size="12" text-anchor="middle" fill="#374151">summaries/*-summary.txt</text>
+  <text x="882" y="403" font-size="11" text-anchor="middle" fill="#374151">SSE-S3 (AES-256)</text>
+  <text x="882" y="418" font-size="11" text-anchor="middle" fill="#374151">Block Public Access · TLS only</text>
+  <text x="882" y="465" font-size="12" font-weight="bold" text-anchor="middle" fill="#232f3e">4. PutObject</text>
+  <text x="882" y="481" font-size="11" text-anchor="middle" fill="#4b5563">summary + metadata</text>
+  <text x="882" y="496" font-size="11" text-anchor="middle" fill="#4b5563">(model, token counts)</text>
+
+  <!-- CloudWatch -->
+  <rect x="545" y="420" width="185" height="70" rx="8" fill="#fce4ec" stroke="#b0084d" stroke-width="2"/>
+  <text x="637" y="448" font-size="15" font-weight="bold" text-anchor="middle" fill="#880e4f">Amazon CloudWatch</text>
+  <text x="637" y="468" font-size="12" text-anchor="middle" fill="#374151">Logs (14-day retention)</text>
+
+  <!-- IAM role -->
+  <rect x="225" y="370" width="270" height="160" rx="8" fill="#fffde7" stroke="#bf8f00" stroke-width="2" stroke-dasharray="6 4"/>
+  <text x="360" y="395" font-size="15" font-weight="bold" text-anchor="middle" fill="#7a5a00">AWS IAM · execution role</text>
+  <text x="240" y="420" font-size="12" fill="#374151">✓ s3:GetObject  input bucket/*</text>
+  <text x="240" y="440" font-size="12" fill="#374151">✓ s3:PutObject  output bucket/summaries/*</text>
+  <text x="240" y="460" font-size="12" fill="#374151">✓ bedrock:InvokeModel  one model ARN</text>
+  <text x="240" y="480" font-size="12" fill="#374151">✓ logs:PutLogEvents  own log group</text>
+  <text x="240" y="505" font-size="11" fill="#6b7280">No list/delete, no other buckets or models,</text>
+  <text x="240" y="520" font-size="11" fill="#6b7280">no stored credentials.</text>
+
+  <!-- 1: upload -->
+  <line x1="165" y1="250" x2="238" y2="250" stroke="#232f3e" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <!-- 2: event -->
+  <line x1="425" y1="235" x2="543" y2="235" stroke="#232f3e" stroke-width="2" marker-end="url(#arrow)"/>
+  <text x="485" y="205" font-size="12" font-weight="bold" text-anchor="middle" fill="#232f3e">2. ObjectCreated</text>
+  <text x="485" y="221" font-size="11" text-anchor="middle" fill="#4b5563">event (*.txt)</text>
+  <line x1="543" y1="268" x2="427" y2="268" stroke="#232f3e" stroke-width="2" marker-end="url(#arrow)"/>
+  <text x="485" y="288" font-size="11" text-anchor="middle" fill="#4b5563">GetObject</text>
+
+  <!-- 3: bedrock -->
+  <path d="M705,190 L705,122 L793,122" fill="none" stroke="#232f3e" stroke-width="2" marker-end="url(#arrow)"/>
+  <path d="M793,150 L725,150 L725,188" fill="none" stroke="#232f3e" stroke-width="2" marker-end="url(#arrow)"/>
+  <text x="620" y="105" font-size="12" font-weight="bold" text-anchor="middle" fill="#232f3e">3. Prompt + document</text>
+  <text x="620" y="121" font-size="11" text-anchor="middle" fill="#4b5563">→ summary returned</text>
+
+  <!-- 4: store summary -->
+  <path d="M730,280 L762,280 L762,380 L793,380" fill="none" stroke="#232f3e" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <!-- logs -->
+  <line x1="637" y1="310" x2="637" y2="418" stroke="#6b7280" stroke-width="1.5" stroke-dasharray="5 4" marker-end="url(#arrow-grey)"/>
+  <text x="645" y="370" font-size="11" fill="#6b7280">logs</text>
+
+  <!-- role assumed -->
+  <path d="M495,410 L570,410 L570,312" fill="none" stroke="#bf8f00" stroke-width="1.5" stroke-dasharray="5 4"/>
+  <text x="576" y="350" font-size="11" fill="#7a5a00">assumes</text>
+</svg>
