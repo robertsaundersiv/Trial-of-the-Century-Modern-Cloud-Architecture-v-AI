@@ -47,7 +47,7 @@ All screenshots are in [`docs/screenshots/`](docs/screenshots/). These were take
 
 **Generated summaries in the output bucket**
 
-- Summaries of three test documents in the output bucket's `summaries/` prefix: [cfn stack output bucket summaries.png](docs/screenshots/cfn%20stack%20output%20bucket%20summaries.png)
+- Summaries of three test documents in the console output bucket's `summaries/` prefix: [console output bucket summaries.png](docs/screenshots/console%20output%20bucket%20summaries.png)
 - Sample documents and their generated summaries, downloaded from the output bucket: [`samples/`](samples/). For example, [example-legal-document-UDACITY-EULA-summary.txt](samples/example-legal-document-UDACITY-EULA-summary.txt).
 
 ---
@@ -161,7 +161,7 @@ To validate the CloudFormation template:
 The template was validated and deployed from AWS CloudShell in the temporary course account (us-east-1) on 2026-10-25.
 
 1. **Syntax validation passed.** `validate-template` returned the template's 5 parameters and its description, and reported that `CAPABILITY_NAMED_IAM` is required for `AWS::IAM::Role`. See [cfn validate and deploy.png](docs/screenshots/cfn%20validate%20and%20deploy.png).
-2. **Test deployment succeeded.** `aws cloudformation deploy ... --stack-name test-stack --capabilities CAPABILITY_NAMED_IAM` printed `Successfully created/updated stack - test-stack`. The stack reached `CREATE_COMPLETE` in about 70 seconds. All 8 resources reached `CREATE_COMPLETE` in dependency order: `OutputBucket` and `SummarizeFunctionLogGroup`, then `SummarizeFunctionRole` and `OutputBucketPolicy`, then `SummarizeFunction`, `SummarizeFunctionS3Permission`, `InputBucket`, and `InputBucketPolicy`. See [cfn test-stack events create complete.webp](docs/screenshots/cfn%20test-stack%20events%20create%20complete.webp).
+2. **Test deployment succeeded.** `aws cloudformation deploy ... --stack-name test-stack --capabilities CAPABILITY_NAMED_IAM` printed `Successfully created/updated stack - test-stack`. The stack reached `CREATE_COMPLETE` in about 70 seconds. All 8 resources reached `CREATE_COMPLETE` in dependency order: `OutputBucket` and `SummarizeFunctionLogGroup`, then `SummarizeFunctionRole` and `OutputBucketPolicy`, then `SummarizeFunction`, `SummarizeFunctionS3Permission`, `InputBucket`, and `InputBucketPolicy`. See [cfn test-stack events create complete.png](docs/screenshots/cfn%20test-stack%20events%20create%20complete.png).
 3. **The deployed stack works end to end.** Three test documents uploaded to the stack's input bucket (`objection-inspection-input-415943946517-us-east-1`) produced summaries in `summaries/` in its output bucket (`objection-inspection-output-415943946517-us-east-1`) within seconds. See [cfn stack output bucket summaries.png](docs/screenshots/cfn%20stack%20output%20bucket%20summaries.png).
 
 For comparison, the raw IaC generator template ([`docs/iac-generator-output.yaml`](docs/iac-generator-output.yaml)) also passed `validate-template`, but its deploy failed with `Parameters: [...] must have values`. That failure is problem 1 in the refinements table above. The resources selected in the generator are shown in [IaC generator resources.png](docs/screenshots/IaC%20generator%20resources.png).
@@ -182,7 +182,7 @@ On 2026-10-25, I deleted every resource this project created in the temporary AW
 | Console build (Part 1) | Both buckets (`objection-inspection-console-input-…`, `objection-inspection-console-output-…`) and their 6 objects, the Lambda function, the IAM role, the managed policy (both versions), and the function's log group | `aws s3 rb --force`, `aws lambda delete-function`, `aws iam detach-role-policy` / `delete-role` / `delete-policy-version` / `delete-policy`, `aws logs delete-log-group` |
 | CloudFormation stack `test-stack` (Part 3) | Both buckets (`objection-inspection-input-…-us-east-1`, `objection-inspection-output-…-us-east-1`) and their objects, the bucket policies, the IAM role, the Lambda function and its permission, and the log group | Emptied both buckets (`aws s3 rm --recursive`), then `aws cloudformation delete-stack`. The template has no `Retain` deletion policies, so the stack deletion removes all 8 resources. |
 
-Verification. The commands below search for any remaining project S3 bucket, Lambda function, IAM role, customer-managed policy, and log group. Each returned nothing, and the stack no longer exists:
+Verification. The commands below search for any remaining project S3 bucket, Lambda function, IAM role, customer-managed policy, and log group. Each returned nothing, and the stack no longer exists. See [cleanup verification.png](docs/screenshots/cleanup%20verification.png):
 
 ```text
 ~ $ aws s3 ls | grep objection-inspection; aws lambda list-functions --query "Functions[?contains(FunctionName,'objection')].FunctionName" --output text; aws iam list-roles --query "Roles[?contains(RoleName,'objection')].RoleName" --output text; aws iam list-policies --scope Local --query "Policies[?contains(PolicyName,'objection')].PolicyName" --output text; aws logs describe-log-groups --log-group-name-prefix /aws/lambda/objection --query 'logGroups[].logGroupName' --output text; aws cloudformation describe-stacks --stack-name test-stack 2>&1 | grep -m1 .
