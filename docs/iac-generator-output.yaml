@@ -1,0 +1,265 @@
+---
+Metadata:
+  AWSToolsMetrics:
+    IaC_Generator: "arn:aws:cloudformation:us-east-1:415943946517:generatedTemplate/57a43c81-752e-4a1d-8db2-c38f2eea8a61"
+Parameters:
+  LambdaFunctionObjectioninspectionconsolesummarizeCodeImageUripv48X:
+    NoEcho: "true"
+    Type: "String"
+    Description: "URI of a [container image](https://docs.aws.amazon.com/lambda/latest/dg/lambda-images.html)\
+      \ in the Amazon ECR registry."
+  LambdaFunctionObjectioninspectionconsolesummarizeCodeSourceKMSKeyArnOBGV2:
+    NoEcho: "true"
+    Type: "String"
+    Description: "The ARN of the KMSlong (KMS) customer managed key that's used to\
+      \ encrypt your function's .zip deployment package. If you don't provide a customer\
+      \ managed key, Lambda uses an [owned key](https://docs.aws.amazon.com/kms/latest/developerguide/concepts.html#aws-owned-cmk)."
+  LambdaFunctionObjectioninspectionconsolesummarizeCodeS3BucketsTVUi:
+    NoEcho: "true"
+    Type: "String"
+    Description: "An Amazon S3 bucket in the same AWS-Region as your function. The\
+      \ bucket can be in a different AWS-account."
+  LambdaFunctionObjectioninspectionconsolesummarizeCodeS3ObjectVersionghRIs:
+    NoEcho: "true"
+    Type: "String"
+    Description: "For versioned objects, the version of the deployment package object\
+      \ to use."
+  LambdaFunctionObjectioninspectionconsolesummarizeCodeS3Key8qu49:
+    NoEcho: "true"
+    Type: "String"
+    Description: "The Amazon S3 key of the deployment package."
+  LambdaFunctionObjectioninspectionconsolesummarizeCodeS3ObjectStorageModeyyL8l:
+    NoEcho: "true"
+    Type: "String"
+    Description: "Specifies the storage mode for the deployment package. Use ``COPY``\
+      \ to store the package in LAMlong-managed storage. Use ``REFERENCE`` to read\
+      \ the package directly from the Amazon S3 bucket. If omitted, the default is\
+      \ ``COPY``.Possible values: [COPY, REFERENCE]\nThis property can be replaced\
+      \ with other types"
+  LambdaFunctionObjectioninspectionconsolesummarizeCodeZipFileBmjpG:
+    NoEcho: "true"
+    Type: "String"
+    Description: "(Node.js and Python) The source code of your Lambda function. If\
+      \ you include your function source inline with this parameter, CFN places it\
+      \ in a file named ``index`` and zips it to create a [deployment package](https://docs.aws.amazon.com/lambda/latest/dg/gettingstarted-package.html).\
+      \ This zip file cannot exceed 4MB. For the ``Handler`` property, the first part\
+      \ of the handler identifier must be ``index``. For example, ``index.handler``.\n\
+      \  When you specify source code inline for a Node.js function, the ``index``\
+      \ file that CFN creates uses the extension ``.js``. This means that Node.js\
+      \ treats the file as a CommonJS module.\n When using Node.js 24 or later, Node.js\
+      \ can automatically detect if a ``.js`` file should be treated as CommonJS or\
+      \ as an ES module. To enable auto-detection, add the ``--experimental-detect-module``\
+      \ flag to the ``NODE_OPTIONS`` environment variable. For more information, see\
+      \ [Experimental Node.js features](https://docs.aws.amazon.com//lambda/latest/dg/lambda-nodejs.html#nodejs-experimental-features).\n\
+      \   For JSON, you must escape quotes and special characters such as newline\
+      \ (``\\n``) with a backslash.\n If you specify a function that interacts with\
+      \ an AWS CloudFormation custom resource, you don't have to write your own functions\
+      \ to send responses to the custom resource that invoked the function. AWS CloudFormation\
+      \ provides a response module ([cfn-response](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/cfn-lambda-function-code-cfnresponsemodule.html))\
+      \ that simplifies sending responses. See [Using Lambda with CloudFormation](https://docs.aws.amazon.com/lambda/latest/dg/services-cloudformation.html)\
+      \ for details."
+Resources:
+  IAMManagedPolicyPolicyobjectioninspectionconsolesummarizepolicy:
+    UpdateReplacePolicy: "Retain"
+    Type: "AWS::IAM::ManagedPolicy"
+    DeletionPolicy: "Retain"
+    Properties:
+      ManagedPolicyName: "objection-inspection-console-summarize-policy"
+      Path: "/"
+      Description: ""
+      Groups: []
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+        - Resource: "arn:aws:s3:::objection-inspection-console-input-415943946517/*"
+          Action: "s3:GetObject"
+          Effect: "Allow"
+          Sid: "ReadInputDocuments"
+        - Resource: "arn:aws:s3:::objection-inspection-console-output-415943946517/summaries/*"
+          Action: "s3:PutObject"
+          Effect: "Allow"
+          Sid: "WriteSummaries"
+        - Resource: "arn:aws:bedrock:us-east-1::foundation-model/amazon.nova-lite-v1:0"
+          Action: "bedrock:InvokeModel"
+          Effect: "Allow"
+          Sid: "InvokeSummaryModel"
+        - Resource: "arn:aws:logs:us-east-1:415943946517:log-group:/aws/lambda/objection-inspection-console-summarize:*"
+          Action:
+          - "logs:CreateLogGroup"
+          - "logs:CreateLogStream"
+          - "logs:PutLogEvents"
+          Effect: "Allow"
+          Sid: "WriteOwnLogs"
+      Roles:
+      - "objection-inspection-console-summarize-role"
+      Users: []
+  S3BucketPolicyObjectioninspectionconsoleinput415943946517:
+    UpdateReplacePolicy: "Retain"
+    Type: "AWS::S3::BucketPolicy"
+    DeletionPolicy: "Retain"
+    Properties:
+      Bucket: "objection-inspection-console-input-415943946517"
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+        - Condition:
+            Bool:
+              aws:SecureTransport: "false"
+          Resource:
+          - "arn:aws:s3:::objection-inspection-console-input-415943946517"
+          - "arn:aws:s3:::objection-inspection-console-input-415943946517/*"
+          Action: "s3:*"
+          Effect: "Deny"
+          Principal: "*"
+          Sid: "DenyInsecureTransport"
+  S3BucketObjectioninspectionconsoleinput415943946517:
+    UpdateReplacePolicy: "Retain"
+    Type: "AWS::S3::Bucket"
+    DeletionPolicy: "Retain"
+    Properties:
+      AbacStatus: "Disabled"
+      NotificationConfiguration:
+        QueueConfigurations: []
+        TopicConfigurations: []
+        LambdaConfigurations:
+        - Function: "arn:aws:lambda:us-east-1:415943946517:function:objection-inspection-console-summarize"
+          Filter:
+            S3Key:
+              Rules:
+              - Value: ".txt"
+                Name: "Suffix"
+          Event: "s3:ObjectCreated:*"
+      PublicAccessBlockConfiguration:
+        RestrictPublicBuckets: true
+        IgnorePublicAcls: true
+        BlockPublicPolicy: true
+        BlockPublicAcls: true
+      BucketName: "objection-inspection-console-input-415943946517"
+      OwnershipControls:
+        Rules:
+        - ObjectOwnership: "BucketOwnerEnforced"
+      BucketEncryption:
+        ServerSideEncryptionConfiguration:
+        - BucketKeyEnabled: true
+          BlockedEncryptionTypes:
+            EncryptionType:
+            - "SSE-C"
+          ServerSideEncryptionByDefault:
+            SSEAlgorithm: "AES256"
+  S3BucketObjectioninspectionconsoleoutput415943946517:
+    UpdateReplacePolicy: "Retain"
+    Type: "AWS::S3::Bucket"
+    DeletionPolicy: "Retain"
+    Properties:
+      AbacStatus: "Disabled"
+      PublicAccessBlockConfiguration:
+        RestrictPublicBuckets: true
+        IgnorePublicAcls: true
+        BlockPublicPolicy: true
+        BlockPublicAcls: true
+      BucketName: "objection-inspection-console-output-415943946517"
+      OwnershipControls:
+        Rules:
+        - ObjectOwnership: "BucketOwnerEnforced"
+      BucketEncryption:
+        ServerSideEncryptionConfiguration:
+        - BucketKeyEnabled: true
+          BlockedEncryptionTypes:
+            EncryptionType:
+            - "SSE-C"
+          ServerSideEncryptionByDefault:
+            SSEAlgorithm: "AES256"
+  LambdaFunctionObjectioninspectionconsolesummarize:
+    UpdateReplacePolicy: "Retain"
+    Type: "AWS::Lambda::Function"
+    DeletionPolicy: "Retain"
+    Properties:
+      MemorySize: 256
+      Description: ""
+      TracingConfig:
+        Mode: "PassThrough"
+      Timeout: 120
+      RuntimeManagementConfig:
+        UpdateRuntimeOn: "Auto"
+      Handler: "lambda_function.lambda_handler"
+      Code:
+        SourceKMSKeyArn:
+          Ref: "LambdaFunctionObjectioninspectionconsolesummarizeCodeSourceKMSKeyArnOBGV2"
+        S3ObjectVersion:
+          Ref: "LambdaFunctionObjectioninspectionconsolesummarizeCodeS3ObjectVersionghRIs"
+        S3Bucket:
+          Ref: "LambdaFunctionObjectioninspectionconsolesummarizeCodeS3BucketsTVUi"
+        ZipFile:
+          Ref: "LambdaFunctionObjectioninspectionconsolesummarizeCodeZipFileBmjpG"
+        S3Key:
+          Ref: "LambdaFunctionObjectioninspectionconsolesummarizeCodeS3Key8qu49"
+        S3ObjectStorageMode:
+          Ref: "LambdaFunctionObjectioninspectionconsolesummarizeCodeS3ObjectStorageModeyyL8l"
+        ImageUri:
+          Ref: "LambdaFunctionObjectioninspectionconsolesummarizeCodeImageUripv48X"
+      Role: "arn:aws:iam::415943946517:role/objection-inspection-console-summarize-role"
+      FileSystemConfigs: []
+      FunctionName: "objection-inspection-console-summarize"
+      Runtime: "python3.14"
+      PackageType: "Zip"
+      LoggingConfig:
+        LogFormat: "Text"
+        LogGroup: "/aws/lambda/objection-inspection-console-summarize"
+      RecursiveLoop: "Terminate"
+      Environment:
+        Variables:
+          MAX_INPUT_CHARS: "50000"
+          MODEL_ID: "amazon.nova-lite-v1:0"
+          OUTPUT_BUCKET: "objection-inspection-console-output-415943946517"
+          MAX_OUTPUT_TOKENS: "1024"
+      EphemeralStorage:
+        Size: 512
+      Architectures:
+      - "arm64"
+  LambdaPermissionFunctionobjectioninspectionconsolesummarize:
+    UpdateReplacePolicy: "Retain"
+    Type: "AWS::Lambda::Permission"
+    DeletionPolicy: "Retain"
+    Properties:
+      FunctionName: "arn:aws:lambda:us-east-1:415943946517:function:objection-inspection-console-summarize"
+      Action: "lambda:InvokeFunction"
+      SourceArn: "arn:aws:s3:::objection-inspection-console-input-415943946517"
+      Principal: "s3.amazonaws.com"
+      SourceAccount: "415943946517"
+  S3BucketPolicyObjectioninspectionconsoleoutput415943946517:
+    UpdateReplacePolicy: "Retain"
+    Type: "AWS::S3::BucketPolicy"
+    DeletionPolicy: "Retain"
+    Properties:
+      Bucket: "objection-inspection-console-output-415943946517"
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+        - Condition:
+            Bool:
+              aws:SecureTransport: "false"
+          Resource:
+          - "arn:aws:s3:::objection-inspection-console-output-415943946517"
+          - "arn:aws:s3:::objection-inspection-console-output-415943946517/*"
+          Action: "s3:*"
+          Effect: "Deny"
+          Principal: "*"
+          Sid: "DenyInsecureTransport"
+  IAMRoleObjectioninspectionconsolesummarizerole:
+    UpdateReplacePolicy: "Retain"
+    Type: "AWS::IAM::Role"
+    DeletionPolicy: "Retain"
+    Properties:
+      Path: "/"
+      ManagedPolicyArns:
+      - "arn:aws:iam::415943946517:policy/objection-inspection-console-summarize-policy"
+      MaxSessionDuration: 3600
+      RoleName: "objection-inspection-console-summarize-role"
+      Description: "Allows Lambda functions to call AWS services on your behalf."
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+        - Action: "sts:AssumeRole"
+          Effect: "Allow"
+          Principal:
+            Service: "lambda.amazonaws.com"

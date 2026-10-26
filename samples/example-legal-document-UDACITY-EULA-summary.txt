@@ -1,0 +1,34 @@
+**Document Type and Purpose**
+
+This document outlines the terms and conditions under which Udacity, Inc. provides access to its online educational services, referred to as the "Udacity Services." It governs the use of these services by users, including students, attendees, mentors, and visitors.
+
+**Parties**
+
+- **Udacity, Inc.**: The provider of the Udacity Services.
+- **Users**: Individuals who access or use the Udacity Services, including visitors, students, attendees, and mentors.
+
+**Key Terms and Obligations**
+
+- **Services**: Online educational programs, including Nanodegree programs, offered by Udacity and its educational partners.
+- **User Accounts**: Accounts required for accessing certain services, with strict rules on sharing and maintaining account information.
+- **Intellectual Property**: Udacity and its licensors own all content and materials provided through the services, protected by intellectual property laws.
+- **License to Use**: Udacity grants users a limited, non-exclusive license to access and use the services for educational purposes, subject to compliance with the terms of use.
+
+**Important Dates and Deadlines**
+
+- **Refund Policy**: Users have a seven-day refund period from the initial purchase of a subscription. EU citizens have a 14-day refund window.
+- **Automatic Subscription Payments**: Monthly fees are charged automatically unless canceled. Cancellation must be done before the next billing date to avoid charges.
+
+**Termination and Remedies**
+
+- **Termination**: Udacity reserves the right to terminate a user's access to the services for violations of the terms of use or for any other reason.
+- **Remedies**: Udacity does not offer refunds for unused services except as specified in the refund policy. Disputes are subject to arbitration, with users agreeing to resolve claims individually.
+
+**Risks or Unusual Clauses**
+
+- **Arbitration**: Users agree to resolve disputes through binding arbitration, waiving the right to class-action lawsuits.
+- **Monitoring and Recording**: Udacity reserves the right to monitor and record communications for quality control and training purposes.
+- **Intellectual Property Rights**: Strict prohibitions on the unauthorized use, reproduction, or distribution of Udacity's content and materials.
+- **User Conduct**: Users are prohibited from engaging in illegal activities, uploading unauthorized content, or interfering with the services.
+
+This summary provides a high-level overview of the document's key points, focusing on the terms and conditions that govern the use of Udacity's online educational services.

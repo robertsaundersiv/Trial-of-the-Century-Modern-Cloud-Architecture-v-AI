@@ -1,0 +1,38 @@
+**Document Type and Purpose:**
+
+This document is the Federal Communications Commission's (FCC) Semiannual Regulatory Agenda for 2026. It outlines the regulatory activities the FCC plans to undertake over the next 12 months, including new rules, reviews, and updates to existing regulations.
+
+**Parties:**
+
+- **Primary Party:** Federal Communications Commission (FCC)
+- **Contact Person:** Andrea Brown, Program Specialist, Office of Communications Business Opportunities, FCC
+
+**Key Terms and Obligations:**
+
+- **Docket Number:** A unique identifier assigned to a regulatory proceeding.
+- **Notice of Inquiry (NOI):** Issued when the FCC seeks information on a broad subject.
+- **Notice of Proposed Rulemaking (NPRM):** Issued when proposing new rules or changes to existing rules.
+- **Memorandum Opinion and Order (MO&O):** Issued in response to a petition for rulemaking or to conclude an inquiry.
+- **Report and Order (R&O):** Issued to adopt new rules, change existing rules, or state that no changes will be made.
+
+**Important Dates and Deadlines:**
+
+- **NPRM for TCPA Rules:** June 29, 2023
+- **NPRM for Telecommunications Relay Service Rules:** June 16, 2023
+- **Second Report and Order for TCPA Rules:** January 26, 2024
+- **Second FNPRM Comment Due:** February 26, 2024
+- **Second FNPRM Comment Replies Due:** March 11, 2024
+- **Stay Order, DA 25-90:** January 24, 2025
+
+**Termination and Remedies:**
+
+- The FCC may terminate or modify any regulatory action based on public comments, further analysis, or changes in law.
+- Remedies may include adjustments to proposed rules, additional public comment periods, or issuance of final rules.
+
+**Risks or Unusual Clauses:**
+
+- **Regulatory Flexibility Analysis:** Required for rules likely to have a significant economic impact on a substantial number of small entities.
+- **Public Participation:** The FCC encourages public participation in its rulemaking process.
+- **National Security and Technological Advancements:** Several regulations address national security concerns and the use of emerging technologies.
+
+This summary provides a concise overview of the FCC's regulatory agenda, highlighting key terms, deadlines, and potential risks associated with the proposed regulatory actions.

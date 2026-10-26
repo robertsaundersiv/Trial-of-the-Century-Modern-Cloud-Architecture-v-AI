@@ -1,0 +1,39 @@
+### Document Type and Purpose
+This is a Software License Agreement between the user and NVIDIA Corporation, governing the use of the CUTLASS DSLs software.
+
+### Parties
+- **User**: The individual or entity using the software.
+- **NVIDIA Corporation**: The software provider.
+
+### Key Terms and Obligations
+- **License Grant to User**: The software is licensed, not sold. The user can install, use, configure, and create derivative works under specific conditions.
+- **License Restrictions**: The software cannot be used for purposes other than those specified, sold, sublicensed, or reverse-engineered, among other restrictions.
+- **Authorized Users**: The user can allow employees, contractors, and students to access and use the software internally.
+- **Pre-Release Software**: Software marked as pre-release may be incomplete and used at the user's own risk.
+- **Updates**: NVIDIA can change, discontinue, or deprecate the software at any time.
+- **Components Under Other Licenses**: Some software components may have separate licenses.
+- **Ownership**: The software remains the property of NVIDIA, while the user retains rights to their own products and derivatives.
+- **Feedback**: Any feedback provided to NVIDIA is granted to them under a perpetual license.
+- **Termination**: The agreement can be terminated by either party with 30 days' notice or automatically if the user breaches the agreement.
+- **Disclaimer of Warranties**: The software is provided "as-is" with no warranties.
+- **Limitations of Liability**: NVIDIA is not liable for indirect, special, or consequential damages, and its total liability is capped at $5.
+- **Use in Mission Critical Applications**: The software is not designed for mission-critical applications, and the user is responsible for ensuring safety and compliance.
+- **Governing Law and Jurisdiction**: The agreement is governed by the laws of Delaware, with exclusive jurisdiction in Santa Clara County, California.
+- **Indemnity**: The user agrees to indemnify NVIDIA against claims arising from the use of the software.
+- **General Provisions**: Includes clauses on independent contractor status, no assignment, no waiver, trade compliance, government rights, notices, severability, amendments, construction, force majeure, and entire agreement.
+
+### Important Dates and Deadlines
+- **Termination Notice**: Either party can terminate the agreement with 30 days' written notice.
+- **Effect of Termination**: Upon termination, the user must stop using the software and return or delete all related materials within a specified period.
+
+### Termination and Remedies
+- **Termination**: The agreement can be terminated by either party with 30 days' notice or automatically if the user breaches the agreement.
+- **Effect of Termination**: The user must stop using the software and return or delete all related materials, except where prior written approval is granted by NVIDIA for archival purposes.
+
+### Risks or Unusual Clauses
+- **Limited Liability**: The maximum liability of NVIDIA is capped at $5, which is unusually low.
+- **Mission Critical Applications**: The software is explicitly not designed for use in mission-critical applications, and the user assumes full responsibility for such uses.
+- **Force Majeure**: Neither party is liable for performance issues due to events beyond their control.
+- **No Waiver**: Failure to enforce any term does not prevent future enforcement.
+- **Indemnity**: The user must indemnify NVIDIA against claims arising from the use of the software.
+- **Trade Compliance**: The user must comply with all export and import laws and regulations, with specific restrictions on certain countries and end-uses.

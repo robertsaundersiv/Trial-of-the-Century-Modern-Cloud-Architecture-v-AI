@@ -144,7 +144,7 @@ Then **IAM → Roles → Create role**:
 | Setting | Value |
 | --- | --- |
 | Name | `objection-inspection-console-summarize` |
-| Runtime | Python 3.13 |
+| Runtime | Python 3.14 |
 | Architecture | arm64 |
 | Execution role | Use an existing role → `objection-inspection-console-summarize-role` |
 

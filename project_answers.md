@@ -97,7 +97,7 @@ The AWS CloudFormation template ([`cloudformation.yaml`](cloudformation.yaml)) i
 2. **Lambda Function**:
    - A function to process S3 events, invoke Amazon Bedrock for summarization, and store the results in the output bucket.
    - Configured with appropriate memory size and timeout for handling large legal documents: 256 MB and 120 seconds. The function waits on the model and does little computing, so more memory would add cost without speeding it up. Documents are capped at `MaxInputChars` (50,000 characters by default) so a single call stays within the timeout and within budget.
-   - Python 3.13 on arm64 (Graviton), which costs about 20% less per GB-second than x86. The code is inline, so the template deploys without uploading a package first.
+   - Python 3.14 on arm64 (Graviton), which costs about 20% less per GB-second than x86. The code is inline, so the template deploys without uploading a package first.
    - A log group with 14-day retention, and an `AWS::Lambda::Permission` that allows only this account's input bucket to invoke the function.
 
 3. **IAM Roles and Policies**:
@@ -105,13 +105,22 @@ The AWS CloudFormation template ([`cloudformation.yaml`](cloudformation.yaml)) i
 
 **Parameters:** `ProjectName`, `ModelId`, `MaxInputChars`, `MaxOutputTokens`, `LogRetentionDays`. Everything that might change between environments is a parameter, and nothing is hard-coded to one account.
 
-**Refinements over the IaC generator output.** The IaC generator scans existing resources, so its raw output needs cleanup before it can be reused. This template makes the following fixes:
+**Refinements over the IaC generator output.** I generated a template with the CloudFormation IaC generator from the resources built by hand in the console ([`docs/iac-generator-output.yaml`](docs/iac-generator-output.yaml)). I included only the solution's 8 resources: 2 buckets, 2 bucket policies, the IAM role, its managed policy, the Lambda function, and its S3 permission.
 
-- It includes only the solution's resources: the 2 buckets, 2 bucket policies, the role, the function, its log group, and its permission. It leaves out unrelated resources the scan picks up, such as other roles, Lambda's default log groups, and the course account's own resources.
-- Hard-coded account IDs, ARNs, and bucket names are replaced with `!Sub`, `!Ref`, and `!GetAtt` plus parameters, so the stack can be deployed again in any account.
-- The function's code location in Lambda's internal staging bucket is replaced with inline code.
-- The circular dependency between the bucket notification, the Lambda permission, and the role is broken. The input bucket's name is built from parameters, and the bucket `DependsOn` the permission, so S3 can validate the notification target when the bucket is created.
-- Generated read-only properties and default values are removed so the template is readable.
+The generated template passes `validate-template`, but it does not deploy. `aws cloudformation deploy` fails with *"Parameters: [...CodeImageUripv48X, ...CodeZipFileBmjpG, ...] must have values"*. Reviewing it turned up the following problems, each fixed in [`cloudformation.yaml`](cloudformation.yaml):
+
+| # | In the generated template | Why it is a problem | Fix in `cloudformation.yaml` |
+| --- | --- | --- | --- |
+| 1 | The function's `Code` is 7 `NoEcho` parameters with no defaults (`ImageUri`, `ZipFile`, `S3Bucket`, `S3Key`, `S3ObjectVersion`, `S3ObjectStorageMode`, `SourceKMSKeyArn`). | The generator cannot export function code. The stack cannot deploy without values, and `ImageUri`, `ZipFile`, and `S3Bucket` are mutually exclusive, so no set of values is valid for all of them. | The handler code is inline in `Code.ZipFile`, and `Handler` changed from `lambda_function.lambda_handler` to `index.lambda_handler` (CloudFormation names inline code `index`). A unit test keeps the inline code identical to `src/`. |
+| 2 | Every resource has `DeletionPolicy: Retain` and `UpdateReplacePolicy: Retain`. | Deleting the stack would leave every bucket, role, and function behind, which defeats using the template to clean up the account. | Removed, so `delete-stack` removes everything. |
+| 3 | The account ID `415943946517`, the bucket names, and the role, function, and policy ARNs are hard-coded strings in 20+ places. | The template only works in this one account. It would also collide with the existing console resources. And because nothing uses `!Ref`/`!GetAtt`, CloudFormation does not know which resource depends on which. | Names come from `!Sub "${ProjectName}-...-${AWS::AccountId}-${AWS::Region}"`, and references use `!Ref`/`!GetAtt`, so the stack deploys in any account next to the console build. |
+| 4 | The input bucket's notification points at the function ARN as a string, with no dependency on the Lambda permission. | CloudFormation may create the bucket before the permission exists, and S3 then rejects the notification (*"Unable to validate the following destination configurations"*). | The input bucket `DependsOn` the permission. The permission and the role build the bucket ARN from parameters, which also avoids a circular dependency. |
+| 5 | Permissions are a separate `AWS::IAM::ManagedPolicy` that lists the role, while the role also lists the policy ARN as a string. | The policy is attached twice in two different ways. It also has `logs:CreateLogGroup`, and the trust policy has no source-account condition. | One inline policy on the role, the same 4 least-privilege statements, without `logs:CreateLogGroup`. The trust policy adds `aws:SourceAccount`. |
+| 6 | No log group resource; Lambda creates one on first run. | Lambda's log group never expires, so logs pile up and cost money forever. The stack also cannot delete it. | An `AWS::Logs::LogGroup` with `RetentionInDays: 14` (parameter), wired to the function with `LoggingConfig`. |
+| 7 | Generated noise: `Metadata.AWSToolsMetrics`, `AbacStatus`, empty `Description`, `Groups`, `Users`, `FileSystemConfigs`, `QueueConfigurations`, and `TopicConfigurations`, plus default `TracingConfig`, `EphemeralStorage`, `RuntimeManagementConfig`, `RecursiveLoop`, and `MaxSessionDuration`. | These properties make the template harder to read and review without changing behavior. | Removed. |
+| 8 | Logical IDs like `S3BucketObjectioninspectionconsoleinput415943946517` and parameter names like `...CodeZipFileBmjpG`. | Unreadable, and they embed the account ID. | Short names (`InputBucket`, `SummarizeFunction`, ...) and 5 meaningful parameters (`ProjectName`, `ModelId`, `MaxInputChars`, `MaxOutputTokens`, `LogRetentionDays`). |
+
+The generator got the security settings right, and the refined template keeps all of them: AES-256 default encryption, all four Block Public Access settings, `BucketOwnerEnforced`, the TLS-only bucket policies, and the least-privilege policy statements. The runtime (Python 3.14), arm64 architecture, 256 MB memory, 120-second timeout, and environment variables also match the console build.
 
 ### Validation Steps
 To validate the CloudFormation template:

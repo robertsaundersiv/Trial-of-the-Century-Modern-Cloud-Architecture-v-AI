@@ -23,3 +23,7 @@ packaged-template.yaml
 Thumbs.db
 .vscode/
 .idea/
+
+# AWS CLI installer unpacked into the project folder
+/aws/
+/awscliv2.zip
