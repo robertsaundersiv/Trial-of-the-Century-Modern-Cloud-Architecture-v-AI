@@ -26,12 +26,29 @@ The function gets its credentials from its **IAM execution role**. No secrets ar
 
 ### Screenshots
 
-<!-- Add the screenshots to docs/screenshots/ and update the file names below. -->
+All screenshots are in [`docs/screenshots/`](docs/screenshots/). These were taken from the version built by hand in the console (`objection-inspection-console-*`).
 
-1. Input bucket configuration (encryption, Block Public Access, event notification): `docs/screenshots/`
-2. Output bucket configuration (encryption, Block Public Access): `docs/screenshots/`
-3. Lambda function execution (test event result and CloudWatch log line): `docs/screenshots/`
-4. Generated summary in the output bucket: `docs/screenshots/`
+**Input bucket configuration**
+
+- Block Public Access on, ACLs disabled (Bucket owner enforced): [S3 Bucket obj insp console inp.png](docs/screenshots/S3%20Bucket%20obj%20insp%20console%20inp.png)
+- Default encryption SSE-S3 (AES-256): [S3 Bucket obj insp con inp properties.png](docs/screenshots/S3%20Bucket%20obj%20insp%20con%20inp%20properties.png)
+- Event notification (`s3:ObjectCreated:*`, suffix `.txt` → Lambda): [input bucket event notifications.png](docs/screenshots/input%20bucket%20event%20notifications.png)
+
+**Output bucket configuration**
+
+- Block Public Access on, ACLs disabled: [S3 Bucket obj insp console inp output.png](docs/screenshots/S3%20Bucket%20obj%20insp%20console%20inp%20output.png)
+- Default encryption SSE-S3 (AES-256): [S3 Bucket obj insp con inp properties output.png](docs/screenshots/S3%20Bucket%20obj%20insp%20con%20inp%20properties%20output.png)
+
+**IAM and Lambda**
+
+- Least-privilege execution role policy: [obj insp policy.png](docs/screenshots/obj%20insp%20policy.png)
+- S3 trigger on the function: [event function input trigger.png](docs/screenshots/event%20function%20input%20trigger.png)
+- Lambda function execution (test event succeeded, with log output): [test input success.png](docs/screenshots/test%20input%20success.png). The run on the sample document took 4.0 s and 99 MB of memory and used **9,848 input / 506 output tokens**. The document is longer than `MAX_INPUT_CHARS` (50,000), so the log shows `truncated=True`. The project tips allow limiting document size, and the cap keeps the cost of each call predictable.
+
+**Generated summaries in the output bucket**
+
+- Summaries of three test documents in the output bucket's `summaries/` prefix: [cfn stack output bucket summaries.png](docs/screenshots/cfn%20stack%20output%20bucket%20summaries.png)
+- Sample documents and their generated summaries, downloaded from the output bucket: [`samples/`](samples/). For example, [example-legal-document-UDACITY-EULA-summary.txt](samples/example-legal-document-UDACITY-EULA-summary.txt).
 
 ---
 
@@ -65,7 +82,7 @@ Lifecycle rules are a good fit because the access pattern is predictable: hot at
 ### 2. How would you further optimize your solution if your model inference costs become prohibitively expensive?
 To reduce model inference costs, I would consider the following optimizations:
 
-Bedrock on-demand pricing is per token. Output tokens cost about 4× as much as input tokens. Amazon Nova Lite costs about $0.00006 per 1K input tokens and $0.00024 per 1K output tokens. A 10,000-token document with a 500-token summary therefore costs about **$0.00072**. Cost grows with the number of documents × tokens per document × price per token, so each strategy below reduces one of those factors.
+Bedrock on-demand pricing is per token. Output tokens cost about 4× as much as input tokens. Amazon Nova Lite costs about $0.00006 per 1K input tokens and $0.00024 per 1K output tokens. A 10,000-token document with a 500-token summary therefore costs about **$0.00072**. The test run on the sample document measured 9,848 input and 506 output tokens, or about **$0.00071**. Cost grows with the number of documents × tokens per document × price per token, so each strategy below reduces one of those factors.
 
 **a. Use the smallest model that gives acceptable summaries, and route by document.** **Amazon Nova Micro** costs about $0.000035 / $0.00014 per 1K tokens, around 40% less than Nova Lite. The same document would cost about **$0.00042**. I would run both models on a sample set, have attorneys review the results, and keep the cheaper model if quality is acceptable. I would also route by document: short or routine documents (NDAs, standard leases) go to Nova Micro, and only long or complex agreements go to a larger model. This needs only a change to the `ModelId` parameter, or a length check in the function. Model choice is usually the single biggest cost factor.
 
@@ -139,7 +156,15 @@ To validate the CloudFormation template:
    - Check that the S3 buckets, Lambda function, and IAM roles are created as expected.
    - Confirm that the Lambda function triggers correctly and interacts with Bedrock to process documents: upload the sample document to the input bucket and confirm that `summaries/<name>-summary.txt` appears in the output bucket.
 
-<!-- Paste the validate-template output, the stack's CREATE_COMPLETE events, and the end-to-end test result here, or add screenshots to docs/screenshots/. -->
+### Validation Results
+
+The template was validated and deployed from AWS CloudShell in the temporary course account (us-east-1) on 2026-10-25.
+
+1. **Syntax validation passed.** `validate-template` returned the template's 5 parameters and its description, and reported that `CAPABILITY_NAMED_IAM` is required for `AWS::IAM::Role`. See [cfn validate and deploy.png](docs/screenshots/cfn%20validate%20and%20deploy.png).
+2. **Test deployment succeeded.** `aws cloudformation deploy ... --stack-name test-stack --capabilities CAPABILITY_NAMED_IAM` printed `Successfully created/updated stack - test-stack`. The stack reached `CREATE_COMPLETE` in about 70 seconds. All 8 resources reached `CREATE_COMPLETE` in dependency order: `OutputBucket` and `SummarizeFunctionLogGroup`, then `SummarizeFunctionRole` and `OutputBucketPolicy`, then `SummarizeFunction`, `SummarizeFunctionS3Permission`, `InputBucket`, and `InputBucketPolicy`. See [cfn test-stack events create complete.webp](docs/screenshots/cfn%20test-stack%20events%20create%20complete.webp).
+3. **The deployed stack works end to end.** Three test documents uploaded to the stack's input bucket (`objection-inspection-input-415943946517-us-east-1`) produced summaries in `summaries/` in its output bucket (`objection-inspection-output-415943946517-us-east-1`) within seconds. See [cfn stack output bucket summaries.png](docs/screenshots/cfn%20stack%20output%20bucket%20summaries.png).
+
+For comparison, the raw IaC generator template ([`docs/iac-generator-output.yaml`](docs/iac-generator-output.yaml)) also passed `validate-template`, but its deploy failed with `Parameters: [...] must have values`. That failure is problem 1 in the refinements table above. The resources selected in the generator are shown in [IaC generator resources.png](docs/screenshots/IaC%20generator%20resources.png).
 
 ---
 
@@ -150,7 +175,21 @@ To validate the CloudFormation template:
 
 ### Clean-Up Confirmation
 
-<!-- After teardown, confirm here, e.g.: "All resources (both S3 buckets, the Lambda function, its IAM role, and its log group) were deleted from the temporary AWS account on <date>." -->
+On 2026-10-25, I deleted every resource this project created in the temporary AWS account (415943946517, us-east-1). I deleted them from CloudShell after taking all the screenshots.
+
+| Build | Resources deleted | How |
+| --- | --- | --- |
+| Console build (Part 1) | Both buckets (`objection-inspection-console-input-…`, `objection-inspection-console-output-…`) and their 6 objects, the Lambda function, the IAM role, the managed policy (both versions), and the function's log group | `aws s3 rb --force`, `aws lambda delete-function`, `aws iam detach-role-policy` / `delete-role` / `delete-policy-version` / `delete-policy`, `aws logs delete-log-group` |
+| CloudFormation stack `test-stack` (Part 3) | Both buckets (`objection-inspection-input-…-us-east-1`, `objection-inspection-output-…-us-east-1`) and their objects, the bucket policies, the IAM role, the Lambda function and its permission, and the log group | Emptied both buckets (`aws s3 rm --recursive`), then `aws cloudformation delete-stack`. The template has no `Retain` deletion policies, so the stack deletion removes all 8 resources. |
+
+Verification. The commands below search for any remaining project S3 bucket, Lambda function, IAM role, customer-managed policy, and log group. Each returned nothing, and the stack no longer exists:
+
+```text
+~ $ aws s3 ls | grep objection-inspection; aws lambda list-functions --query "Functions[?contains(FunctionName,'objection')].FunctionName" --output text; aws iam list-roles --query "Roles[?contains(RoleName,'objection')].RoleName" --output text; aws iam list-policies --scope Local --query "Policies[?contains(PolicyName,'objection')].PolicyName" --output text; aws logs describe-log-groups --log-group-name-prefix /aws/lambda/objection --query 'logGroups[].logGroupName' --output text; aws cloudformation describe-stacks --stack-name test-stack 2>&1 | grep -m1 .
+aws: [ERROR]: An error occurred (ValidationError) when calling the DescribeStacks operation: Stack with id test-stack does not exist
+```
+
+The IaC generator's scan and generated template are metadata only and cost nothing. The account's `ecs-exercise-setup` stack is from an earlier course exercise and is not part of this project.
 
 ---
 
