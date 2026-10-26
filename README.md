@@ -13,13 +13,13 @@ A plaintext document uploaded to a private, encrypted S3 bucket triggers a Lambd
 | Architecture diagram | [`docs/architecture.svg`](docs/architecture.svg) / [`.png`](docs/architecture.png) |
 | Screenshots (bucket configs, Lambda execution, stored summary, deployment) | [`docs/screenshots/`](docs/screenshots/) |
 | Part 2: cost-optimization answers | [`project_answers.md`](project_answers.md) |
-| Part 3: validated CloudFormation template | [`cloudformation.yaml`](cloudformation.yaml) |
+| Part 3: validated CloudFormation template | [`template.yaml`](template.yaml) |
 | Clean-up confirmation | [`project_answers.md`](project_answers.md#clean-up-confirmation) |
 
 ## Repository layout
 
 ```text
-cloudformation.yaml               Validated template: 2 buckets, bucket policies, IAM role, Lambda, log group, S3 trigger
+template.yaml                     Validated template: 2 buckets, bucket policies, IAM role, Lambda, log group, S3 trigger
 project_answers.md                Part 1 summary, Part 2 answers, Part 3 template notes
 src/summarize_function/
   lambda_function.py              Lambda handler (same code is inlined in the template)
@@ -67,10 +67,10 @@ Parameters: `ProjectName` (resource name prefix), `ModelId` (default `amazon.nov
 python -m unittest discover -s tests -v
 ```
 
-The handler tests stub S3 and Bedrock. The template test fails if the inline code in `cloudformation.yaml` drifts from `src/summarize_function/lambda_function.py`, or goes over CloudFormation's 4,096-character inline limit. After editing the handler, copy it into the template's `ZipFile` block, indented 10 spaces.
+The handler tests stub S3 and Bedrock. The template test fails if the inline code in `template.yaml` drifts from `src/summarize_function/lambda_function.py`, or goes over CloudFormation's 4,096-character inline limit. After editing the handler, copy it into the template's `ZipFile` block, indented 10 spaces.
 
 Lint the template with [cfn-lint](https://github.com/aws-cloudformation/cfn-lint):
 
 ```bash
-cfn-lint cloudformation.yaml
+cfn-lint template.yaml
 ```

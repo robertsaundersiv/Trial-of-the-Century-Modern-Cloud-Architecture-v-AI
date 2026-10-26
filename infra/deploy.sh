@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Validate and deploy cloudformation.yaml, then (optionally) upload a document to test it.
+# Validate and deploy template.yaml, then (optionally) upload a document to test it.
 #   bash infra/deploy.sh                          # validate + deploy
 #   bash infra/deploy.sh samples/legal_doc.txt    # ...then upload this file and wait for its summary
 set -euo pipefail
@@ -12,12 +12,12 @@ STACK_NAME="${STACK_NAME:-objection-inspection}"
 
 aws sts get-caller-identity --query Account --output text >/dev/null
 
-echo "== Validating cloudformation.yaml"
-aws cloudformation validate-template --template-body file://cloudformation.yaml --query Description --output text
+echo "== Validating template.yaml"
+aws cloudformation validate-template --template-body file://template.yaml --query Description --output text
 
 echo "== Deploying stack $STACK_NAME"
 aws cloudformation deploy \
-  --template-file cloudformation.yaml \
+  --template-file template.yaml \
   --stack-name "$STACK_NAME" \
   --capabilities CAPABILITY_NAMED_IAM \
   --no-fail-on-empty-changeset

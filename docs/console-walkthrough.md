@@ -1,6 +1,6 @@
 # Console Walkthrough (Part 1) and IaC Generator (Part 3)
 
-Build the summarizer by hand in the AWS Console, collect the screenshots, generate a template with the IaC generator, and then deploy [`cloudformation.yaml`](../cloudformation.yaml) as the validated version.
+Build the summarizer by hand in the AWS Console, collect the screenshots, generate a template with the IaC generator, and then deploy [`template.yaml`](../template.yaml) as the validated version.
 
 Everything runs in **us-east-1 (N. Virginia)** in the temporary Udacity account. Open the console from the course's **Cloud Resources** page.
 
@@ -207,11 +207,11 @@ Upload the sample document again with a new name, such as `sample_legal_document
 
    Don't add the "related resources" it suggests that belong to the course account, such as other roles, log groups, or Udacity's own stacks.
 4. Download the YAML and save it as `docs/iac-generator-output.yaml` for comparison.
-5. Compare it with [`cloudformation.yaml`](../cloudformation.yaml). The refinements to look for are listed in `project_answers.md` → *Refinements over the IaC generator output*. They include hard-coded account IDs and ARNs, a code location in Lambda's internal staging bucket, the bucket/notification/permission ordering, and extra default properties.
+5. Compare it with [`template.yaml`](../template.yaml). The refinements to look for are listed in `project_answers.md` → *Refinements over the IaC generator output*. They include the function code exported as empty parameters, `Retain` deletion policies, hard-coded account IDs and ARNs, the bucket/notification/permission ordering, and extra default properties.
 
 📸 **Screenshot:** the IaC generator template page showing the selected resources.
 
-## 9. Validate and deploy `cloudformation.yaml`
+## 9. Validate and deploy `template.yaml`
 
 Put the Cloud Resources credentials in `.env` (copy [`.env.example`](../.env.example)). Then, from the repo root in Git Bash:
 
@@ -219,7 +219,7 @@ Put the Cloud Resources credentials in `.env` (copy [`.env.example`](../.env.exa
 bash infra/deploy.sh samples/<sample-file>.txt
 ```
 
-The script runs `validate-template` and `cloudformation deploy` with `CAPABILITY_NAMED_IAM`. It prints the stack outputs, uploads the sample document, waits for the summary, and prints it. You can also run the two commands from the project instructions directly, using `cloudformation.yaml` as the file.
+The script runs `validate-template` and `cloudformation deploy` with `CAPABILITY_NAMED_IAM`. It prints the stack outputs, uploads the sample document, waits for the summary, and prints it. You can also run the two commands from the project instructions directly, using `template.yaml` as the file.
 
 📸 **Screenshot:** the `validate-template` output, the stack's **Events** tab ending in `CREATE_COMPLETE`, its **Resources** tab, and the printed summary.
 

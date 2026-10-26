@@ -43,6 +43,8 @@ All screenshots are in [`docs/screenshots/`](docs/screenshots/). These were take
 
 - Least-privilege execution role policy: [obj insp policy.png](docs/screenshots/obj%20insp%20policy.png)
 - S3 trigger on the function: [event function input trigger.png](docs/screenshots/event%20function%20input%20trigger.png)
+- Function code, in the Lambda code editor: [lambda code.png](docs/screenshots/lambda%20code.png)
+- Function configuration, environment variables (`OUTPUT_BUCKET`, `MODEL_ID`, `MAX_INPUT_CHARS`, `MAX_OUTPUT_TOKENS`). No credentials are stored there: [lambda environment variables.png](docs/screenshots/lambda%20environment%20variables.png). These two screenshots come from the CloudFormation stack's function (`objection-inspection-summarize`, code inlined as `index.py`), which runs the same code and settings as the console function. The test result below shows the configured 256 MB memory.
 - Lambda function execution (test event succeeded, with log output): [test input success.png](docs/screenshots/test%20input%20success.png). The run on the sample document took 4.0 s and 99 MB of memory and used **9,848 input / 506 output tokens**. The document is longer than `MAX_INPUT_CHARS` (50,000), so the log shows `truncated=True`. The project tips allow limiting document size, and the cap keeps the cost of each call predictable.
 
 **Generated summaries in the output bucket**
@@ -104,7 +106,7 @@ Bedrock on-demand pricing is per token. Output tokens cost about 4× as much as 
 ## Part 3: CloudFormation Template Validation
 
 ### Summary of the CloudFormation Template
-The AWS CloudFormation template ([`cloudformation.yaml`](cloudformation.yaml)) includes the following resources:
+The AWS CloudFormation template ([`template.yaml`](template.yaml)) includes the following resources:
 1. **S3 Buckets**:
    - An input bucket to store uploaded legal documents (`<project>-input-<account>-<region>`).
    - An output bucket to store summarization results (`<project>-output-<account>-<region>`).
@@ -124,9 +126,9 @@ The AWS CloudFormation template ([`cloudformation.yaml`](cloudformation.yaml)) i
 
 **Refinements over the IaC generator output.** I generated a template with the CloudFormation IaC generator from the resources built by hand in the console ([`docs/iac-generator-output.yaml`](docs/iac-generator-output.yaml)). I included only the solution's 8 resources: 2 buckets, 2 bucket policies, the IAM role, its managed policy, the Lambda function, and its S3 permission.
 
-The generated template passes `validate-template`, but it does not deploy. `aws cloudformation deploy` fails with *"Parameters: [...CodeImageUripv48X, ...CodeZipFileBmjpG, ...] must have values"*. Reviewing it turned up the following problems, each fixed in [`cloudformation.yaml`](cloudformation.yaml):
+The generated template passes `validate-template`, but it does not deploy. `aws cloudformation deploy` fails with *"Parameters: [...CodeImageUripv48X, ...CodeZipFileBmjpG, ...] must have values"*. Reviewing it turned up the following problems, each fixed in [`template.yaml`](template.yaml):
 
-| # | In the generated template | Why it is a problem | Fix in `cloudformation.yaml` |
+| # | In the generated template | Why it is a problem | Fix in `template.yaml` |
 | --- | --- | --- | --- |
 | 1 | The function's `Code` is 7 `NoEcho` parameters with no defaults (`ImageUri`, `ZipFile`, `S3Bucket`, `S3Key`, `S3ObjectVersion`, `S3ObjectStorageMode`, `SourceKMSKeyArn`). | The generator cannot export function code. The stack cannot deploy without values, and `ImageUri`, `ZipFile`, and `S3Bucket` are mutually exclusive, so no set of values is valid for all of them. | The handler code is inline in `Code.ZipFile`, and `Handler` changed from `lambda_function.lambda_handler` to `index.lambda_handler` (CloudFormation names inline code `index`). A unit test keeps the inline code identical to `src/`. |
 | 2 | Every resource has `DeletionPolicy: Retain` and `UpdateReplacePolicy: Retain`. | Deleting the stack would leave every bucket, role, and function behind, which defeats using the template to clean up the account. | Removed, so `delete-stack` removes everything. |
@@ -143,13 +145,13 @@ The generator got the security settings right, and the refined template keeps al
 To validate the CloudFormation template:
 
 1. **Syntax Validation**:
-   - Run `aws cloudformation validate-template --template-body file://cloudformation.yaml`.
-   - The template also passes `cfn-lint cloudformation.yaml` with no errors or warnings.
+   - Run `aws cloudformation validate-template --template-body file://template.yaml`.
+   - The template also passes `cfn-lint template.yaml` with no errors or warnings.
 
 2. **Test Deployment**:
    - Deploy the template in a test environment using:
      ```bash
-     aws cloudformation deploy --template-file cloudformation.yaml --stack-name test-stack --capabilities CAPABILITY_NAMED_IAM
+     aws cloudformation deploy --template-file template.yaml --stack-name test-stack --capabilities CAPABILITY_NAMED_IAM
      ```
 
 3. **Verify Resources**:
@@ -159,6 +161,9 @@ To validate the CloudFormation template:
 ### Validation Results
 
 The template was validated and deployed from AWS CloudShell in the temporary course account (us-east-1) on 2026-10-25.
+
+> [!NOTE]
+> During testing, the file was named `cloudformation.yaml`, the name of the course workspace's starter file, so the screenshots show that name. It was then renamed to `template.yaml`, the name the deliverables require. The contents are unchanged.
 
 1. **Syntax validation passed.** `validate-template` returned the template's 5 parameters and its description, and reported that `CAPABILITY_NAMED_IAM` is required for `AWS::IAM::Role`. See [cfn validate and deploy.png](docs/screenshots/cfn%20validate%20and%20deploy.png).
 2. **Test deployment succeeded.** `aws cloudformation deploy ... --stack-name test-stack --capabilities CAPABILITY_NAMED_IAM` printed `Successfully created/updated stack - test-stack`. The stack reached `CREATE_COMPLETE` in about 70 seconds. All 8 resources reached `CREATE_COMPLETE` in dependency order: `OutputBucket` and `SummarizeFunctionLogGroup`, then `SummarizeFunctionRole` and `OutputBucketPolicy`, then `SummarizeFunction`, `SummarizeFunctionS3Permission`, `InputBucket`, and `InputBucketPolicy`. See [cfn test-stack events create complete.png](docs/screenshots/cfn%20test-stack%20events%20create%20complete.png).
@@ -176,6 +181,8 @@ For comparison, the raw IaC generator template ([`docs/iac-generator-output.yaml
 ### Clean-Up Confirmation
 
 On 2026-10-25, I deleted every resource this project created in the temporary AWS account (415943946517, us-east-1). I deleted them from CloudShell after taking all the screenshots.
+
+The stack was torn down twice. After the first clean-up below, I deployed `test-stack` again from the same template, only to take the Lambda code and environment-variable screenshots. Then I deleted it again the same way and reran the verification check, which again came back empty.
 
 | Build | Resources deleted | How |
 | --- | --- | --- |
